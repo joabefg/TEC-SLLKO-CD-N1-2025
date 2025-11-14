@@ -1,18 +1,35 @@
 services:
+  # Serviço PostgreSQL
   postgres:
-    image: postgres:13
     container_name: postgres
+    image: postgres:latest
     environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
     volumes:
-      - postgres-db-volume:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "airflow"]
-      interval: 10s
-      retries: 5
-      start_period: 5s
+      # Persistência dos dados do banco
+      - postgres_data:/var/lib/postgresql
+      # Não incluiu a política de restart: always
+
+  # Serviço pgAdmin
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    links:
+      # Permite que o pgAdmin se comunique com o container do Postgres
+      - postgres
+    depends_on:
+      - postgres
+      # Não incluiu a política de restart: always
 
 volumes:
-  postgres-db-volume:
+  # Volume para garantir que os dados do Postgres persistam
+  postgres_data:
