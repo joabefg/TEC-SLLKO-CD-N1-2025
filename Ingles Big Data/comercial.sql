@@ -277,7 +277,7 @@ SELECT cliente_id from venda; -- sem DISTINCT trás tudo
 SELECT DISTINCT cliente_id from venda; -- com DISTINCT trás somente um registro por pessoa
 -- IN: Usado para buscar comparando com mais de um valor
 -- Buscar somente clientes com id 1 e 2
-SELECT cliente_id, cliente_razao FROM cliente WHERE cliente_id == 1; -- igual só funciona com um registro
+SELECT cliente_id, cliente_razao FROM cliente WHERE cliente_id = 1; -- igual só funciona com um registro
 SELECT cliente_id, cliente_razao FROM cliente WHERE cliente_id IN (1,2); -- in faz o mesmo, mas com vários registros
 -- NOT IN: Faz o opostro, busca trazendo todos os registros, exceto os especificados
 -- Buscar todos os clientes EXCETO os com id 1 e 2
@@ -296,3 +296,178 @@ SELECT cliente_razao FROM cliente WHERE cliente_id NOT IN (
 SELECT venda_id, (
     SELECT cliente_razao FROM cliente WHERE cliente_id = venda.venda_id) Nome_Cliente
 FROM venda;
+-- Alias: dá um nome para a coluna, independente se ela já tem um nome, só vale na query executada, fora não muda.
+-- usado em nomes grandes, iguais ou funç~eos
+SELECT cliente_id CODIGO, cliente_nome cliente 
+FROM cliente WHERE cliente_id NOT IN (1,2,3,4)
+
+-- JOIN SIMPLES
+-- Buscas utilizando mais de uma tabela
+SELECT cliente_nome, cliente_razao, venda_id 
+FROM venda, cliente 
+WHERE venda.cliente_id = cliente.cliente_id 
+ORDER BY razão
+
+-- FUNÇÕES 
+--   AGREGAÇÃO
+--   Agrupam vários dados mas só retorna uma informação. (ex. count, max, media)
+
+-- 1. FUNÇÕES DE CÁLCULOS
+-- a. round(): Arredonda valores, mas pode passar a qtd de casas decimais para limitar (arredondando)
+SELECT round(venda_total, 1) -- 1 casa decimal
+FROM venda;
+-- b. format(): Formata valores, mas pode passar a qtd de casas decimais para limitar (corta)
+SELECT format(venda_total, 1) -- 1 casa decimal
+FROM venda;
+-- c. truncate(): Omite casas decimais (corta)
+SELECT truncate(venda_total, 1) -- 1 casa decimal
+FROM venda;
+-- d. funções de cálculo E funções de agregação
+SELECT avg(venda_total)
+FROM venda; -- sem truncate: 12213.964453
+SELECT truncate(avg(venda_total), 2)
+FROM venda;
+
+-- 2. FUNÇÕES DE DATA
+-- Servem principalmente para buscar registros em um determinado período. Vendas de hoje, antes de hoje.
+-- a. curdate(): retorna apenas a data atual.
+SELECT curdate();
+-- b. curtime(): retorna apenas a hora atual.
+SELECT curtime();
+-- c. now(): retorna a datz e hora atual.
+SELECT now(); -- UTC-0
+-- d. datediff(): retorna o intervalo entre duas datas. OBS: COMO USAR COM VARIÁVEIS VINDO DO BANCO?
+SELECT datediff('2025-02-01', '2025-01-01');
+SELECT datediff('2025-02-01', '2025-01-01') 'PERÍODO DE INSCRIÇÃO';
+-- e. date_add(): adiciona um período a uma data. de x até 30 dias depois.
+SELECT date_add('2023-02-01', interval 31 day);
+-- f. dayname(): retorna o dia da semana, ideal para não precisar ficar salvando dia da semana no banco.
+SELECT dayname('2025-01-01');
+-- g. extract(): retorna parte da data
+SELECT EXTRACT(YEAR FROM '2019-07-02');
+SELECT EXTRACT(MONTH FROM '2019-07-02 01:02:03');
+SELECT EXTRACT(DAY_MINUTE FROM '2019-07-02 01:02:03');
+-- h. get_format(): retorna um padrão dia.mês.ano (o formato brasileiro não é legal por causa da barra)
+SELECT date_format('2025-01-10',get_format(date,'EUR'));
+
+-- 3. FUNÇÕES DE AGREGAÇÃO
+-- a. count(): conta o número total de itens de venda registrados.
+SELECT COUNT(ivenda_id) FROM ivenda;
+-- b. distinct(): conta quantos itens diferentes foram vendidos.
+SELECT COUNT(DISTINCT produto_id) FROM comercial.ivenda;
+-- c. avg: mostra a média de vários valores passados.
+SELECT AVG(ivenda_valor) FROM comercial.ivenda;
+-- d. Soma (SUM) - Total Bruto : Calcula o valor total bruto de todas as vendas (antes dos descontos).
+SELECT SUM(venda_valor) FROM comercial.venda;	
+-- e. Soma (SUM) - Quantidade: Calcula a quantidade total de produtos vendidos.
+SELECT SUM(ivenda_quantidade) FROM comercial.ivenda;	
+-- f. Máximo (MAX) - Valor: Encontra a venda de maior valor (o total final da venda).
+SELECT MAX(venda_total) FROM comercial.venda;
+-- g. Mínimo (MIN) - Valor: Encontra a venda de menor valor (o total final da venda).
+SELECT MIN(venda_total) FROM comercial.venda;	
+-- h. Máximo (MAX) - Desconto	: Encontra o maior desconto individual aplicado em um item.
+SELECT MAX(ivenda_desconto) FROM comercial.ivenda;	
+-- i. Soma (SUM) - Desconto Total: Calcula o valor total de todos os descontos concedidos.
+SELECT SUM(ivenda_desconto * ivenda_quantidade) FROM comercial.ivenda;	
+-- j. Média (AVG) - Total Final: Calcula o valor total final médio de todas as transações de venda.
+SELECT AVG(venda_total) FROM comercial.venda;
+
+-- 4. AGREGAÇÃO COM GROUP BY
+-- O GROUP BY agrupa as linhas que têm os mesmos valores nas colunas especificadas, e então as funções de agregação calculam um valor para cada grupo.
+-- a. Vendas por Cliente: Conta o número de vendas realizadas por cada cliente.
+SELECT cliente_id, COUNT(venda_id) AS total_vendas FROM comercial.venda GROUP BY cliente_id;	
+-- b. Total Vendido por Vendedor: Calcula o valor total de vendas que cada vendedor realizou.
+SELECT vendedor_id, SUM(venda_total) AS valor_total FROM comercial.venda GROUP BY vendedor_id;	
+-- c. Quantidade Vendida por Produto: Soma a quantidade total de cada produto individual vendido.
+SELECT produto_id, SUM(ivenda_quantidade) AS total_unidades FROM comercial.ivenda GROUP BY produto_id;	
+-- d. Máximo Desconto por Venda: Encontra o maior desconto aplicado dentro de cada venda específica.
+SELECT venda_id, MAX(ivenda_desconto) AS maior_desconto FROM comercial.ivenda GROUP BY venda_id;	
+-- e. Média de Vendas por Data: Calcula a média de valor das vendas por dia.
+SELECT DATE(venda_data) AS data_venda, AVG(venda_total) AS media_diaria FROM comercial.venda GROUP BY data_venda;	
+
+-- 5. JOIN
+-- Os JOINs combinam linhas de duas ou mais tabelas com base em uma coluna relacionada, como chaves primárias e estrangeiras.
+-- a. INNER JOIN
+--   Venda + Cliente: Lista o ID da Venda e o Nome do Cliente que a realizou. Só lista vendas que têm clientes e clientes que fizeram vendas.
+SELECT v.venda_id, c.cliente_nome FROM comercial.venda v INNER JOIN comercial.cliente c ON v.cliente_id = c.cliente_id;
+--   Item + Produto: Exibe o ID do item da venda e a descrição do produto vendido.
+SELECT iv.ivenda_id, p.produto_descricao FROM comercial.ivenda iv INNER JOIN comercial.produto p ON iv.produto_id = p.produto_id;	
+--   Venda + Vendedor: Exibe o ID da Venda e o Nome do Vendedor responsável.
+SELECT v.venda_id, vd.vendedor_nome FROM comercial.venda v INNER JOIN comercial.vendedor vd ON v.vendedor_id = vd.vendedor_id;
+--   Vendas Detalhadas (3 Tabelas): Combina Venda, Cliente e Vendedor para mostrar uma visão completa da transação.
+SELECT v.venda_id, c.cliente_nome, vd.vendedor_nome FROM comercial.venda v INNER JOIN comercial.cliente c ON v.cliente_id = c.cliente_id INNER JOIN comercial.vendedor vd ON v.vendedor_id = vd.vendedor_id;	
+-- b. LEFT JOIN
+-- Todos os Produtos e suas Vendas: Lista todos os produtos (tabela da esquerda), e a quantidade se foi vendido. Se o produto nunca foi vendido, a quantidade será NULL.
+SELECT p.produto_descricao, iv.ivenda_quantidade FROM comercial.produto p LEFT JOIN comercial.ivenda iv ON p.produto_id = iv.produto_id;	
+-- Todos os Clientes e suas Vendas: Lista todos os clientes, mesmo aqueles que nunca fizeram uma venda (venda_id será NULL).
+SELECT c.cliente_nome, v.venda_id FROM comercial.cliente c LEFT JOIN comercial.venda v ON c.cliente_id = v.cliente_id;
+-- c. RIGHT JOIN
+--   Todos os Vendedores e suas Vendas: Lista todos os vendedores (tabela da direita), mesmo que não tenham feito nenhuma venda (venda_total será NULL).
+SELECT vd.vendedor_nome, v.venda_total FROM comercial.venda v RIGHT JOIN comercial.vendedor vd ON v.vendedor_id = vd.vendedor_id;	
+-- d. FULL OUTER JOIN (TODOS AMBOS LADOS)
+--   Fornecedores e Produtos (Conceitual): Lista todos os fornecedores (mesmo os que não fornecem produto) e todos os produtos (mesmo os que não têm fornecedor registrado).
+SELECT f.fornecedor_nome, p.produto_descricao FROM comercial.fornecedor f FULL OUTER JOIN comercial.produto p ON f.fornecedor_id = p.fornecedor_id;	
+-- e. SELF JOIN
+--   Produtos do Mesmo Fornecedor: Lista pares de produtos que são fornecidos pelo mesmo fornecedor. O p1.produto_id < p2.produto_id é para evitar duplicatas e o par consigo mesmo.
+SELECT p1.produto_descricao AS produto_a, p2.produto_descricao AS produto_b, p1.fornecedor_id FROM comercial.produto p1 INNER JOIN comercial.produto p2 ON p1.fornecedor_id = p2.fornecedor_id AND p1.produto_id < p2.produto_id;	
+-- f. CROSS JOIN
+-- Todos com Todos: Combina cada vendedor com cada fornecedor, gerando uma lista de todas as combinações possíveis. Use com cautela, pois pode gerar muitos resultados.
+SELECT vd.vendedor_nome, f.fornecedor_nome FROM comercial.vendedor vd CROSS JOIN comercial.fornecedor f;	
+
+
+ Entendendo a Cláusula JOIN no SQLA 
+ cláusula JOIN é um dos conceitos mais fundamentais e poderosos em SQL. 
+ Ela permite combinar colunas e linhas de duas ou mais tabelas em um banco de dados relacional, com base em um relacionamento (geralmente uma chave estrangeira) entre elas.
+ Em essência, um JOIN está dizendo: "Mostre-me os dados da Tabela A e os dados da Tabela B onde o valor na coluna de ligação da Tabela A é igual ao valor na coluna de ligação da Tabela B."
+ 🔑 O Ponto de Ligação: Chaves Estrangeiras
+     O JOIN é quase sempre realizado usando as chaves:
+     Chave Primária (Primary Key - PK): Um identificador único em uma tabela (ex: cliente_id na tabela cliente).
+     Chave Estrangeira (Foreign Key - FK): Uma coluna em uma tabela que referencia a chave primária de outra tabela (ex: cliente_id na tabela venda).
+     A sintaxe básica para ligar as tabelas A e B é: 
+          SELECT colunas FROM Tabela_A [TIPO DE JOIN] Tabela_B ON Tabela_A.chave_estrangeira = Tabela_B.chave_primaria;
+4️⃣ Tipos Principais de JOIN
+     Existem quatro tipos principais de JOINs, que se diferenciam pela forma como lidam com as linhas que não possuem correspondência na outra tabela.
+
+     1. INNER JOIN (Interseção)
+     O INNER JOIN retorna apenas as linhas que têm correspondência em ambas as tabelas. É o tipo de JOIN mais comum e mais restritivo.O que retorna: Apenas a interseção dos dados. Se um registro existe na Tabela A, mas não tem correspondência na Tabela B, ele é excluído do resultado. 
+     -- Retorna apenas as vendas que têm um cliente registrado E clientes que fizeram pelo menos uma venda.
+     SELECT v.venda_id, c.cliente_nome FROM comercial.venda v INNER JOIN comercial.cliente c ON v.cliente_id = c.cliente_id;
+
+     2. LEFT JOIN ou LEFT OUTER JOIN (Todos da Esquerda)
+     O LEFT JOIN retorna todas as linhas da tabela da esquerda (a primeira tabela listada no FROM) e as linhas correspondentes da tabela da direita.O que retorna: Se não houver correspondência na tabela da direita, as colunas da tabela da direita terão o valor NULL.
+     Quando usar: Para listar TUDO da Tabela A e, se houver, os detalhes correspondentes da Tabela B.
+     -- Retorna TODOS os produtos. Se um produto não foi vendido, ivenda_id será NULL.
+     SELECT p.produto_descricao, iv.ivenda_id FROM comercial.produto p LEFT JOIN comercial.ivenda iv ON p.produto_id = iv.produto_id;
+
+     3. RIGHT JOIN ou RIGHT OUTER JOIN (Todos da Direita)
+     O RIGHT JOIN é o oposto do LEFT JOIN. Ele retorna todas as linhas da tabela da direita e as linhas correspondentes da tabela da esquerda.
+     O que retorna: Se não houver correspondência na tabela da esquerda, as colunas da tabela da esquerda terão o valor NULL.
+     Quando usar: Para listar TUDO da Tabela B e, se houver, os detalhes correspondentes da Tabela A.
+     -- Retorna TODOS os vendedores. Se um vendedor não fez nenhuma venda, venda_id será NULL.
+     SQLSELECT v.venda_id, vd.vendedor_nome FROM comercial.venda v RIGHT JOIN comercial.vendedor vd ON v.vendedor_id = vd.vendedor_id;
+
+     4. FULL JOIN ou FULL OUTER JOIN (Todos de Ambas)
+     O FULL JOIN retorna todas as linhas quando há uma correspondência em uma das tabelas. É a união completa das duas tabelas.
+     O que retorna: Linhas correspondentes são unidas; linhas que não correspondem são preenchidas com NULL na tabela onde o registro está ausente.Quando usar: Para ver todos os registros, independentemente de haver correspondência.
+     -- Retorna todos os clientes (mesmo sem venda) e todas as vendas (mesmo se o cliente fosse desconhecido).
+     SELECT c.cliente_nome, v.venda_id FROM comercial.cliente c FULL JOIN comercial.venda v ON c.cliente_id = v.cliente_id;
+
+     5. SELF JOIN (Junção Própria)
+     O SELF JOIN é simplesmente um JOIN normal (geralmente um INNER JOIN) onde uma tabela é ligada a si mesma.
+     Uso: É essencial quando uma tabela contém uma relação hierárquica ou quando você precisa comparar registros dentro da mesma tabela.
+     Requisito: É obrigatório usar aliases diferentes (apelidos como t1 e t2) para a mesma tabela, para que o SQL possa diferenciá-las.
+     -- Comparar produtos que têm o mesmo fornecedor.
+     SELECT p1.produto_descricao, p2.produto_descricao
+     FROM comercial.produto p1
+     INNER JOIN comercial.produto p2
+     ON p1.fornecedor_id = p2.fornecedor_id
+     AND p1.produto_id < p2.produto_id; -- Garante que não haja duplicatas (A, B) e (B, A)
+
+     6. CROSS JOIN (Produto Cartesiano)
+     O CROSS JOIN combina cada linha da primeira tabela com cada linha da segunda tabela.
+     O que retorna: Um conjunto de resultados que é o produto cartesiano do número de linhas. Se A tem $N$ linhas e B tem $M$ linhas, o resultado terá $N \times M$ linhas.
+     Uso: Raramente usado em consultas de dados, mas útil para gerar todas as combinações possíveis entre conjuntos de dados.
+     SELECT vd.vendedor_nome, f.fornecedor_nome
+     FROM comercial.vendedor vd
+     CROSS JOIN comercial.fornecedor f;
+     -- Cada vendedor é listado com CADA fornecedor.
