@@ -55,3 +55,4 @@ ALTER TABLE Student DROP COLUMN  StudentName;
 -- Adicionar coluna
 ALTER TABLE Student ADD COLUMN  StudentName VARCHAR(100);
 
+-- a
