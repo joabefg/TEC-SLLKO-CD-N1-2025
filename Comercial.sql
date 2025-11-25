@@ -6,28 +6,29 @@ CREATE DATABASE comercial;
 -- SELECIONAR O BANCO DE DADOS
 USE comercial;
 
--- CRIAR TABELAS
+-- CRIAR TABELAS 
 -- Clientes
-CREATE TABLE cliente (
-    cliente_id INT NOT NULL AUTO_INCREMENT,
-    cliente_codigo VARCHAR(10),
-    cliente_nome VARCHAR(100),
-    cliente_razao VARCHAR(100),
-    cliente_data DATE,
-    cliente_cnpj VARCHAR(20),
-    cliente_contato VARCHAR(20),
-    cliente_cidade VARCHAR(50),
-    cliente_estado VARCHAR(50),
-    PRIMARY KEY (cliente_id)
-);
+create table cliente(
+     cliente_id int not null auto_increment,
+     cliente_codigo varchar(10),
+     cliente_nome varchar(100),
+     cliente_razao varchar(100),
+     cliente_data date,
+     cliente_cnpj varchar(20),
+     cliente_contato varchar(20),
+     cliente_cidade varchar(50),
+     cliente_estado varchar(50),
+primary key (cliente_id));
+
 -- Fornecedores
-create table fornecedor(
+Create table fornecedor(
      fornecedor_id int not null auto_increment,
      fornecedor_codigo varchar(10),
      fornecedor_nome varchar(100),
      fornecedor_razao varchar(100),
      fornecedor_contato varchar(20),
 primary key(fornecedor_id));
+
 -- Vendedores
 create table vendedor(
      vendedor_id int not null auto_increment,
@@ -35,10 +36,11 @@ create table vendedor(
      vendedor_nome varchar(100),
      vendedor_razao varchar(100),
      vendedor_contato varchar(20),
-     vendedor_comissao float(10,2),
+     vendedor_comissao float(10,2), 
 primary key(vendedor_id));
+
 -- Produtos
-create table produto(
+     create table produto(
      produto_id int not null auto_increment,
      produto_codigo varchar(20),
      produto_descricao varchar(100),
@@ -46,8 +48,9 @@ create table produto(
      produto_situacao varchar(1),
      fornecedor_id int,
 primary key(produto_id));
+
 -- Vendas
-create table venda(
+Create table venda(
      venda_id int not null auto_increment,
      venda_codigo varchar(10),
      cliente_id int not null,
@@ -58,8 +61,9 @@ create table venda(
      venda_total float(10,2),
      venda_data date,
 primary key(venda_id));
--- Vendas de Itens
-create table ivenda(
+
+-- Ivenda
+Create table ivenda(
      ivenda_id int not null auto_increment,
      venda_id int not null,
      produto_id int not null,
@@ -68,27 +72,30 @@ create table ivenda(
      ivenda_desconto float(10,2),
 primary key(ivenda_id));
 
--- CRIAR CONSTRAINTS
--- Toda venda tem um fornecedor da tabela fornedor
+-- # 02. CRIAR CONSTRAINT
 alter table venda add constraint  fk_produto_fornecedor 
      foreign key(fornecedor_id) references fornecedor(fornecedor_id) 
           on delete no action 
           on update no action;
--- Toda venda tem um vendedor da tabela vendedor
+
+-- Toda venda tem um fornecedor da tabela forncedor
 alter table venda add constraint  fk_produto_vendedor 
      foreign key(vendedor_id) references vendedor(vendedor_id) 
           on delete no action 
           on update no action;
+          
 -- Toda venda tem um cliente da tabela cliente
 alter table venda add constraint  fk_venda_cliente
      foreign key(cliente_id) references cliente(cliente_id) 
           on delete no action 
           on update no action;
--- Toda venda de item deve estar associado a um produto da tabela produto
+
+-- Toda venda de item deve estar associados a um produto da tabela produto
 alter table ivenda add constraint  fk_ivenda_produto 
- foreign key(produto_id) references produto(produto_id) 
-	  on delete no action 
-	  on update no action;      
+     foreign key(produto_id) references produto(produto_id) 
+          on delete no action 
+          on update no action;
+          
 -- Toda venda de item deve estar associada a uma venda da tabela venda
 alter table ivenda add constraint  fk_ivenda_venda
      foreign key(venda_id) references venda(venda_id) 
@@ -96,7 +103,6 @@ alter table ivenda add constraint  fk_ivenda_venda
           on update no action;
           
 -- POPULAR BANCO
--- Cliente
 INSERT INTO cliente (
     cliente_id, 
     cliente_codigo, 
@@ -118,15 +124,15 @@ INSERT INTO cliente (
 (8, '0008', 'HUGHES MARKETS', 'HUGHES MARKETS', '2015-02-17', '04.728.160/0001-02', '(21) 7984-9809', 'RIO DE JANEIRO', 'RJ'),
 (9, '0009', 'AUTO WORKS', 'AUTO WORKS LTDA', '2015-02-17', '08.271.985/0001-00', '(21) 8548-5556', 'RIO DE JANEIRO', 'RJ'),
 (10, '0010', 'DAHLKEMPER', 'DAHLKEMPER LTDA', '2015-02-17', '49.815.047/0001-00', '(11) 4519-7670', 'SÃO PAULO', 'SP');
--- Vendedores
+
 INSERT INTO vendedor (vendedor_id, vendedor_codigo, vendedor_nome, vendedor_razao, vendedor_contato, vendedor_comissao) VALUES
 (1, '0001', 'CARLOS FERNANDES', 'CARLOS FERNANDES LTDA', '(47) 7535-8144', 12.00),
 (2, '0002', 'JÚLIA GOMES', 'JÚLIA GOMES LTDA', '(12) 8037-6661', 25.00);
--- Fornecedores
+
 INSERT INTO fornecedor (fornecedor_id, fornecedor_codigo, fornecedor_nome, fornecedor_razao, fornecedor_contato) VALUES
 (1, '0001', 'DUN RITE LAWN MAINTENANCE', 'DUN RITE LAWN MAINTENANCE LTDA', '(85) 7886-8837'),
 (2, '0002', 'SEWFRO FABRICS', 'SEWFRO FABRICS LTDA', '(91) 5171-8483');
--- Produtos
+
 INSERT INTO produto (produto_id, produto_codigo, produto_descricao, produto_valor, produto_situacao, fornecedor_id) VALUES
 (1, '123131', 'NOTEBOOK', 1251.29, 'A', 1),
 (2, '123223', 'SMARTPHONE', 1242.21, 'A', 2),
@@ -134,7 +140,8 @@ INSERT INTO produto (produto_id, produto_codigo, produto_descricao, produto_valo
 (4, '142123', 'TELEVISÃO', 2564.92, 'A', 2),
 (5, '7684', 'DRONE', 2325.32, 'A', 1),
 (6, '159876', 'MONITOR GAMER', 1251.29, 'A', 1);
--- Venda
+
+-- Item venda
 INSERT INTO venda (
     venda_id, 
     venda_codigo, 
@@ -160,12 +167,13 @@ INSERT INTO venda (
 (12, '12', 2, 2, 2, 11198.05, 0, 11198.05, '2015-01-02'),
 (13, '13', 3, 1, 1, 4967.84, 0, 4967.84, '2015-01-03'),
 (14, '14', 3, 2, 2, 7451.26, 0, 7451.26, '2015-01-04'),
-(15, '15', 5, 1, 1, 10747.359, 0, 10747.36, '2015-01-01'),
+(15, '15', 5, 1, 1, 10747.359, 0, 10747.36, '2015-01-01'), -- Arredondado para 2 casas
 (16, '16', 6, 2, 2, 13502.34, 0, 13502.34, '2015-01-02'),
 (17, '17', 7, 1, 1, 22222.99, 0, 22222.99, '2015-01-03'),
 (18, '18', 8, 2, 2, 15465.69, 0, 15465.69, '2015-01-04'),
 (19, '19', 9, 1, 1, 4650.64, 0, 4650.64, '2015-01-01'),
 (20, '20', 9, 2, 2, 6975.96, 0, 6975.96, '2015-01-02');
+
 -- Item Venda
 INSERT INTO ivenda (
     ivenda_id, 
@@ -217,59 +225,18 @@ INSERT INTO ivenda (
 (40, 17, 5, 2325.32, 5, 0),
 (41, 18, 5, 2325.32, 6, 0);
 
--- SELECIONAR O BANCO DE DADOS
-USE comercial;
--- Selecionar todos os dados da tabela
-SELECT * FROM cliente;
--- Selecionar campos específicos
-SELECT cliente_id, cliente_codigo, cliente_razao
-FROM cliente;
--- WHERE IGUAL
-SELECT cliente_razao FROM cliente 
-WHERE cliente_codigo = '0001';
--- WHERE DIFERENTE
-SELECT cliente_razao FROM cliente
-WHERE cliente_codigo <> '0001';
--- WHERE MAIOR
-SELECT cliente_razao FROM cliente
-WHERE cliente_id >= 5;
--- DISTINCT
-SELECT DISTINCT cliente_id FROM venda;
--- IN
-SELECT cliente_id, cliente_razao FROM cliente
-WHERE cliente_id IN (1, 2, 3);
--- NOT IN
-SELECT cliente_id ID, cliente_razao RAZAO_SOCIAL FROM cliente
-WHERE cliente_id NOT IN (1, 2, 3);
--- SUBCONSULTA: RAZÃO SOCIAL DE QUEM REALIZOU COMPRA
-SELECT cliente_id FROM venda;
-SELECT cliente_razao RAZÃO_SOCIAL FROM cliente 
-WHERE cliente_id NOT IN (
-	SELECT cliente_id FROM venda WHERE cliente_id);
-    
--- AGREGAÇÃO
--- COUNT: CONTAR
-SELECT COUNT(*) TOTAL_CLIENTES FROM cliente;
--- MIN e MAX
-SELECT MAX(venda_total) MAIOR_VENDA FROM venda;
-SELECT MIN(venda_desconto) MENOR_DESCONTO FROM venda;
--- SOMAR VENDAS
-SELECT SUM(venda_total) FROM venda 
-WHERE venda_data 
-BETWEEN '2014-01-01' AND '2015-01-01';
--- MÉDIA
-SELECT AVG(venda_total) FROM venda;
-
 USE comercial;
 -- 1. FUNÇÕES DE CÁLCULO
--- a. round(): 
+SELECT venda_total FROM venda WHERE venda_id = 2;
+SELECT round(venda_total, 1) FROM venda WHERE venda_id = 2;
+-- a. round():
 SELECT round(venda_total, 1) FROM venda;
--- b. format():
+-- b.format():
 SELECT format(venda_total, 1) FROM venda;
 -- c. truncate():
 SELECT truncate(venda_total, 1) FROM venda WHERE venda_id = 2;
--- 2. FUNÇÕES DE DATA
--- a. curdate():
+-- 2. FUNCÕES DE DATA
+-- a.curdate():
 SELECT curdate();
 -- b. curtime():
 SELECT curtime();
@@ -278,11 +245,12 @@ SELECT now();
 -- d. datediff():
 SELECT datediff('2025-02-01','2025-01-01') 'PERÍODO DE MATRÍCULA';
 -- e. date_add():
-SELECT date_add('2023-02-01', interval 31 day); 
+SELECT date_add('2023-02-01', interval 31 day);
 -- f. dayname():
 SELECT dayname('2025-11-19');
 -- g. extract():
 SELECT extract(YEAR FROM '2019-07-02');
+SELECT extract(MONTH FROM '2019-07-02');
 -- h. date_format():
 SELECT date_format('2025-01-10', get_format(date, 'EUR'));
 -- 3. FUNÇÕES DE AGREGAÇÃO:
@@ -291,51 +259,52 @@ SELECT COUNT(ivenda_id) FROM ivenda;
 -- b. distinct():
 SELECT COUNT(DISTINCT produto_id) FROM ivenda;
 SELECT * FROM produto;
--- c. avg: 
+-- c. avg:
 SELECT AVG(ivenda_valor) FROM ivenda;
 -- d. sum():
 SELECT SUM(venda_valor) FROM venda;
--- e. min() e max():
-
+-- e. min e max():
+SELECT MAX(venda_total) máximo, MIN(venda_total) mínimo FROM venda;
 -- 4. AGREGAÇÃO COM GROUP BY
 -- a. Vendas por cliente:
-SELECT cliente_id, COUNT(venda_id) AS total_vendas 
-FROM venda GROUP BY cliente_id;
+SELECT cliente_id, COUNT(venda_id) AS total_vendas FROM venda GROUP BY cliente_id;
 -- Total Vendido Vendedor:
-SELECT vendedor_id, SUM(venda_total) AS vendas_total 
-FROM venda GROUP BY vendedor_id;
+SELECT vendedor_id, SUM(venda_total) AS vendas_total FROM venda GROUP BY vendedor_id;
 -- Média de vendas por data:
-SELECT DATE(venda_data) AS data_venda, AVG(venda_total) AS media_diaria
-FROM venda GROUP BY data_venda;
+SELECT DATE(venda_data) AS data_venda, AVG(venda_total) AS media_diaria FROM venda GROUP BY data_venda;
 
 USE comercial;
 -- 5. JOIN
 -- a: INNER JOIN
--- venda e o cliente
-SELECT c.cliente_nome, v.venda_total
-FROM venda v 
-INNER JOIN cliente c 
+-- venda e cliente
+SELECT  c.cliente_nome, v.venda_total
+FROM venda v
+INNER JOIN cliente c
 ON v.cliente_id = c.cliente_id;
 -- b: LEFT JOIN
 -- descrição do produto e a ivenda
 SELECT p.produto_descricao, iv.ivenda_quantidade
 FROM produto p 
-LEFT JOIN ivenda iv 
+LEFT JOIN ivenda iv
 ON p.produto_id = iv.produto_id;
 
-INSERT INTO produto 
-VALUES (7, '856421', 'PEN DRIVE', 20.50, 'A', 1);
+INSERT INTO produto
+VALUES (7, '856421', 'PEN DRIVE', '20.50', 'A', 1);
 -- c: FULL JOIN
-SELECT f.fornecedor_nome, p.produto_descricao 
+SELECT f.fornecedor_nome, p.produto_descricao
 FROM fornecedor f 
-FULL OUTER JOIN produto p 
+FULL OUTER JOIN produto p
 ON f.fornecedor_id = p.fornecedor_id;
 
 -- d. SELF JOIN
 -- produtos com mesmo fornecedor
-SELECT p1.produto_descricao AS produto_a, 
+SELECT p1.produto_descricao AS produto_a,
 p2.produto_descricao AS produto_b
-FROM produto p1 
-INNER JOIN produto p2 
-ON p1.fornecedor_id = p2.fornecedor_id 
+FROM produto p1
+INNER JOIN produto p2
+ON p1.fornecedor_id = p2.fornecedor_id
 AND p1.produto_id < p2.produto_id;
+
+
+
+          
