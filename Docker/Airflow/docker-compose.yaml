@@ -88,6 +88,7 @@ x-airflow-common:
 services:
   postgres:
     image: postgres:13
+    container_name: postgres_airflow
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -99,7 +100,6 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
-    restart: always
 
   redis:
     # Redis is limited to 7.2-bookworm due to licencing change
@@ -113,7 +113,6 @@ services:
       timeout: 30s
       retries: 50
       start_period: 30s
-    restart: always
 
   airflow-webserver:
     <<: *airflow-common
@@ -126,7 +125,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    restart: always
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -141,7 +139,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    restart: always
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -164,7 +161,6 @@ services:
       # Required to handle warm shutdown of the celery workers properly
       # See https://airflow.apache.org/docs/docker-stack/entrypoint.html#signal-propagation
       DUMB_INIT_SETSID: "0"
-    restart: always
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -179,7 +175,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    restart: always
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -278,11 +273,31 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    restart: always
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
 
+  elasticsearch:
+    image: elasticsearch:7.17.3
+    environment:
+      discovery.type: "single-node"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+  kibana:
+    image: kibana:7.17.3
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
 volumes:
   postgres-db-volume:
+  es_data:
