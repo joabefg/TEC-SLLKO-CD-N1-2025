@@ -20,6 +20,12 @@ with DAG(
     # 1. Tarefa de Extração
     tarefa_extracao = PythonOperator(
         task_id = 'tarefa_extracao',
-        python_callable = funcoes.
-        
+        python_callable = funcoes.extrair_dados
     )
+    # 2. Tarefa de Carregamento
+    tarefa_carregamento = PythonOperator(
+        task_id = 'tarefa_carregamento',
+        python_callable = funcoes.carregar_dados
+    )
+    # Ordem de Dependência
+    tarefa_extracao >> tarefa_carregamento
