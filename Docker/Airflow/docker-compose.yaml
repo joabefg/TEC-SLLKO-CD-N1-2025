@@ -88,6 +88,7 @@ x-airflow-common:
 services:
   postgres:
     image: postgres:13
+    container_name: postgres_airflow
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -99,7 +100,6 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
-    restart: always
 
   redis:
     # Redis is limited to 7.2-bookworm due to licencing change
@@ -113,7 +113,6 @@ services:
       timeout: 30s
       retries: 50
       start_period: 30s
-    restart: always
 
   airflow-webserver:
     <<: *airflow-common
@@ -126,7 +125,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    restart: always
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -141,7 +139,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    restart: always
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -164,7 +161,6 @@ services:
       # Required to handle warm shutdown of the celery workers properly
       # See https://airflow.apache.org/docs/docker-stack/entrypoint.html#signal-propagation
       DUMB_INIT_SETSID: "0"
-    restart: always
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -179,7 +175,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    restart: always
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -278,11 +273,22 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    restart: always
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-
+  pgadmin:
+    container_name: pgadmin_airflow
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "80:80"
+    links:
+      # Permite que o pgAdmin se comunique com o container do Postgres
+      - postgres
+    depends_on:
+      - postgres
 volumes:
   postgres-db-volume:
