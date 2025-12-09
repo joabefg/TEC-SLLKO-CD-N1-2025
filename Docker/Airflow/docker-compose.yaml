@@ -298,7 +298,19 @@ services:
       - "5601:5601"
     depends_on:
       - elasticsearch
-
+  pgadmin:
+    container_name: pgadmin_airflow
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "80:80"
+    links:
+      # Permite que o pgAdmin se comunique com o container do Postgres
+      - postgres
+    depends_on:
+      - postgres
 
 volumes:
   postgres-db-volume:
