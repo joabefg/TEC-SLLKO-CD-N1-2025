@@ -1,0 +1,28 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# tempo de entrega em minutos
+dominos = [28, 30, 31, 29, 30, 32, 29, 30, 31, 30]
+italiana = [15, 45, 20, 55, 10, 60, 25, 50, 30, 40]
+# calculos dominos
+dm_media = np.mean(dominos)
+dm_amplitude = np.max(dominos) - np.min(dominos)
+dm_dam = np.mean(np.abs(dominos - dm_media))
+dm_variancia = np.var(dominos, ddof=1)
+dm_desvio_padrao = np.std(dominos, ddof=1)
+dm_cv = (dm_desvio_padrao / dm_media) * 100
+# calculos italiana
+it_media = np.mean(italiana)
+it_amplitude = np.max(italiana) - np.min(italiana)
+it_dam = np.mean(np.abs(italiana - it_media))
+it_variancia = np.var(italiana, ddof=1)
+it_desvio_padrao = np.std(italiana, ddof=1)
+it_cv = (dm_desvio_padrao / it_media) * 100
+# exibir dados
+print(f"{'Métrica':<20} | {'Dominos':<20} | {'Italiana':<20}")
+print(f"{'Média':<20} | {dm_media:<20} | {it_media:<20}")
+print(f"{'Amplitude':<20} | {dm_amplitude:<20} | {it_amplitude:<20}")
+print(f"{'DAM':<20} | {dm_dam:<20} | {it_dam:<20}")
+print(f"{'Variância':<20} | {dm_variancia :<20} | {it_variancia:<20}")
+print(f"{'Desvio Padrão':<20} | {dm_desvio_padrao:<20} | {it_desvio_padrao:<20}")
+print(f"{'Coef. Variação ':<20} | {dm_cv:<20} | {it_cv:<20}")
