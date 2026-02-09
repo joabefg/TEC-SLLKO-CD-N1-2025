@@ -1,0 +1,52 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+import numpy as np
+
+# 1. Carregar dados
+df = pd.read_csv('C:/Users/efg/TEC-SLLKO-CD-N1-2025/TEC-SLLKO-CD-N1-2025/estatistica/notas.csv')
+todas_notas = df.values.flatten()
+
+# Medidas de resumo
+media = np.mean(todas_notas)
+mediana = np.median(todas_notas)
+moda = stats.mode(todas_notas, keepdims=True).mode[0]
+media_aparada = stats.trim_mean(todas_notas, proportiontocut=0.1)
+
+# Media simples por aluno
+media_simples_alunos = df[['B1', 'B2', 'B3', 'B4']].mean(axis=1)
+
+# Media ponderada por aluno
+pesos = [1, 2, 3, 4]
+media_pondera_alunos = (df['B1']*pesos[0] + df['B2']*pesos[1] + df['B3']*pesos[2] + df['B4']*pesos[3] / sum (pesos))
+
+print(f"Media: {media:.2f}")
+print(f'Mediana: {mediana:.2f}')
+print(f"Moda: {moda:.2f}")
+print(f"Media Aparada: {media_aparada:.2f}")
+print("/n Media simples por aluno")
+print(media_simples_alunos)
+print("/n Media ponderada por aluno")
+print(media_pondera_alunos)
+
+# Graficos
+plt.figure(figsize=(12, 5))
+
+# Histograma - Tabela de frequencia
+plt.subplot(1, 2, 1)
+sns.histplot(todas_notas, color='royalblue', alpha=0.7)
+plt.xticks(np.arange(0,11,1))
+plt.title('Histograma de Frequência das Notas')
+plt.xlabel('Nota')
+plt.ylabel('Frequência')
+
+# Boxplot
+plt.subplot(1, 2, 2)
+sns.boxplot(y=todas_notas, color='lightgreen')
+plt.title('Boxplot das Notas (Quartis)')
+plt.ylabel('Notas')
+
+plt.show()
+
+
