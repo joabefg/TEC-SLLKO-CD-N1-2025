@@ -23,7 +23,6 @@ sns.heatmap(matriz_corr,
             cmap ='coolwarm',
             fmt =".2f",
             ax = calor )
-calor.set_title("Mapa de calor da Correlação") 
-#3.2           
+calor.set_title("Mapa de calor da Correlação")     
 # 4. Exibir Gráfico
 plt.show()
