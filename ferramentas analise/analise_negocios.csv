@@ -1,0 +1,6 @@
+ID_Pedido,Data,Categoria,Custo_Produto,Preço_Venda,Origem_Lead,Tempo_Entrega,Status_Pagamento
+1,01/02/26,Smartphones,1200,2500,Google Ads,3,Concluído
+2,01/02/26,Laptops,3500,5200,Orgânico,7,Concluído
+3,02/02/26,Acessórios,50,150,Instagram,2,Estornado
+4,03/02/26,Smartphones,1100,2400,Google Ads,5,Concluído
+5,03/02/26,Laptops,3800,5500,E-mail Marketing,12,Concluído
