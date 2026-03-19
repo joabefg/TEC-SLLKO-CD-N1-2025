@@ -1,0 +1,9 @@
+ID_Pedido,Data_Venda,Produto,Quantidade,Preço_Unitário,Status
+101,2024-01-10,Notebook,2,4500.00,Pago
+102,11/01/2024,Smartphone,,1200.00,Pago
+103,2024-01-12,Monitor,1,800.00,Pendente
+104,2024-01-12,noteboke,1,4500.00,Pago
+105,,Teclado,3,150.00,Cancelado
+106,2024-01-14,Monitor,2,800.00,Pago
+106,2024-01-14,Monitor,2,800.00,Pago
+107,2024-01-15,Smartphone,-5,1200.00,Pago
